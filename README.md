@@ -1,15 +1,17 @@
-# A swarm of micro flying robots in Python
+# Relative localization of a swarm flying robots
 
-This project contains simulation code and real-world dataset to show the relative localization performance between multiple robots. Both animation and figure plot are supported.
+This project contains simulation code and real-world dataset to show the relative localization performance between multiple robots. This simulation is built in Python, which supports both animation and figure plot.
 
 <p align="center">
-  <img width="300" height="200" src="./doc/animation.gif">
-  <img width="300" height="200" src="./doc/plot.png">
+  <img width="400" height="260" src="./doc/animation.gif">
+  <img width="400" height="260" src="./doc/plot.png">
 </p>
 
 Paper: [PDF on arXiv](https://arxiv.org/abs/).
 
 Video: [Real-world flight on Youtube](https://www.youtube.com/playlist?list=PL_KSX9GOn2P9sgaX3DHnPsnBCJ76fLNJ5).
+
+Quadrotor's code: [Coming soon]().
 
 ## Requirements
 
