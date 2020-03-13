@@ -7,7 +7,7 @@ This project contains simulation code and real-world dataset to show the relativ
   <img width="400" height="260" src="./doc/plot.png">
 </p>
 
-Paper: [PDF on arXiv](https://arxiv.org/abs/).
+Paper: [PDF on arXiv](https://arxiv.org/pdf/2003.05853.pdf).
 
 Video: [Real-world flight on Youtube](https://www.youtube.com/playlist?list=PL_KSX9GOn2P9sgaX3DHnPsnBCJ76fLNJ5).
 
