@@ -1,0 +1,7 @@
+make && python3 -m cfloader -w 'radio://0/90/2M/E7E7E7E7E9' flash cf2.bin stm32-fw && python3 -m cfloader -w 'radio://0/80/2M/E7E7E7E7E8' flash cf2.bin stm32-fw && python3 -m cfloader -w 'radio://0/70/2M/E7E7E7E7E7' flash cf2.bin stm32-fw && python3 -m cfloader -w 'radio://0/60/2M/E7E7E7E7E6' flash cf2.bin stm32-fw && python3 -m cfloader -w 'radio://0/50/2M/E7E7E7E7E5' flash cf2.bin stm32-fw
+
+python3 -m cfloader -w 'radio://0/70/2M/E7E7E7E7E7' reset && python3 -m cfloader -w 'radio://0/60/2M/E7E7E7E7E6' reset && python3 -m cfloader -w 'radio://0/80/2M/E7E7E7E7E8' reset && python3 -m cfloader -w 'radio://0/90/2M/E7E7E7E7E9' reset && python3 -m cfloader -w 'radio://0/50/2M/E7E7E7E7E5' reset
+
+make PROJECT=color
+st-flash write StereoBoard.bin 0x8000000
+
