@@ -30,12 +30,14 @@ xTrue = np.random.uniform(-3, 3, (3, numRob)) # random initial groundTruth of st
 relativeState = np.zeros((3, numRob, numRob)) # [x_ij, y_ij, yaw_ij]' of the second robot in the first robot's view
 data = dataCreate(numRob, border, maxVel, dt, devInput, devObser)
 relativeEKF = EKFonSimData(10, 0.1, 0.25, 0.4, 0.1, numRob)
+uNois = np.zeros((3, numRob))
 
 def animate(step):
-    global xTrue, relativeState
+    global xTrue, relativeState, uNois
     u = data.calcInput_FlyIn1m(step)
     # u = data.calcInput_PotentialField(step, xTrue)
     # u = data.calcInput_Formation01(step, relativeState)
+    # u = data.calcInput_Formation_Optimal(step, relativeState, uNois)
     xTrue, zNois, uNois = data.update(xTrue, u)   
     if step % ekfStride == 0:
         relativeState = relativeEKF.EKF(uNois, zNois, relativeState, ekfStride)

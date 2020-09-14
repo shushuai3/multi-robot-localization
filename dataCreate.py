@@ -2,6 +2,7 @@
 Create input data such as velocities, yaw rates, distances...
 """
 import numpy as np
+from gekko import GEKKO
 
 class dataCreate:
 
@@ -19,6 +20,7 @@ class dataCreate:
         self.oldErrX = 0
         self.intErrY = 0
         self.oldErrY = 0
+        self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
 
     def calcInput_PotentialField(self, step, xTrue):
     # Calculate control inputs [vx, vy, yaw_rate]' of all robots using Potential Field method
@@ -79,7 +81,59 @@ class dataCreate:
                 self.velocity[2,:] = np.random.uniform(0, 1, (1, self.numRob)) - 0.5
         if step > 4000:
             self.velocity[2,:] = np.zeros((1, self.numRob))
+            if (step % 500) == 0:
+                self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
             self.velocity[0, 0], self.velocity[1, 0] = self.pidControl(relativeState[0, 0, 1], relativeState[1, 0, 1])
+            self.velocity[2, 0] = 0
+        return self.velocity
+
+    def calcInput_Formation_Optimal(self, step, relativeState, uNois):
+        # Robot 0 keeps [-2m, -2m] WRT robot 1 after 40s, while other robots keep flyIn1m flight 
+        if (step % 100) == 0:
+            if (step % 200) == 0:
+                self.velocity = -self.velocity
+            else:
+                self.velocity[0:2,:] = np.random.uniform(0, self.maxVel*2, (2, self.numRob)) - self.maxVel
+                self.velocity[2,:] = np.random.uniform(0, 1, (1, self.numRob)) - 0.5
+        if step > 4000:
+            self.velocity[2,:] = np.zeros((1, self.numRob))
+            if (step % 500) == 0:
+                self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
+
+            m = GEKKO()
+            x1, x2 = [m.Var() for i in range(2)]
+            x1.value = uNois[0][0]
+            x2.value = uNois[1][0]
+            x1.lower = -3
+            x1.upper = 3
+            x2.lower = -3
+            x2.upper = 3
+            CY01 = np.cos(relativeState[2][0][1])
+            SY01 = np.sin(relativeState[2][0][1])
+            CY02 = np.cos(relativeState[2][0][2])
+            SY02 = np.sin(relativeState[2][0][2]) # sin relative yaw
+            RX01 = self.reference[0][0] # reference
+            RY01 = self.reference[0][1]
+            V1X  = uNois[0][1]
+            V1Y  = uNois[1][1]
+            V2X  = uNois[0][2]
+            V2Y  = uNois[1][2]
+            V0r  = uNois[2][0]
+            P01X = relativeState[0][0][1]
+            P01Y = relativeState[1][0][1]
+            P02X = relativeState[0][0][2]
+            P02Y = relativeState[1][0][2]
+            w = 0.001
+            de= 0.000001
+        
+            m.Obj( (CY01*V1X-SY01*V1Y-x1+V0r*P01Y-RX01)**2 + (SY01*V1X+CY01*V1Y-x2+V0r*P01X-RY01)**2
+                + w/((CY01*V1X-SY01*V1Y-x1+V0r*P01Y)**2 + (SY01*V1X+CY01*V1Y-x2+V0r*P01X)**2 + de)
+                + w/((CY02*V2X-SY02*V2Y-x1+V0r*P02Y)**2 + (SY02*V2X+CY02*V2Y-x2+V0r*P02X)**2 + de) )
+            m.options.IMODE = 1
+            m.solve()
+            ux, uy = x1.value, x2.value
+            self.velocity[0, 0], self.velocity[1, 0] = ux[0], uy[0]
+            self.velocity[0, 0], self.velocity[1, 0] = 0, 0
             self.velocity[2, 0] = 0
         return self.velocity
 
@@ -98,12 +152,12 @@ class dataCreate:
 
     def pidControl(self, relaX01, relaY01):
         [kp, kd, ki] = [1.4, 0.001, 0.0001]
-        ErrX = relaX01 - 2
+        ErrX = relaX01 - self.reference[0][0]
         self.intErrX = self.intErrX + ErrX
         self.intErrX = np.clip(-10, 10, self.intErrX)
         ctrlX = kp*ErrX + kd*(ErrX-self.oldErrX) + ki*self.intErrX
         self.oldErrX = ErrX
-        ErrY = relaY01 - 2
+        ErrY = relaY01 - self.reference[0][1]
         self.intErrY = self.intErrY + ErrY
         self.intErrY = np.clip(-10, 10, self.intErrY)
         ctrlY = kp*ErrY + kd*(ErrY-self.oldErrY) + ki*self.intErrY
