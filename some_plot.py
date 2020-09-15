@@ -354,3 +354,83 @@ def ekf_one_dataset(q_vel, r_dist, iterNum):
 # ax1.set_ylabel('Ranging deviation (m)')
 # fig.text(0.5, 0.04, 'Velocity deviation (m/s)', ha='center')
 # plt.show()
+
+# Figure of 2D drift trace
+def ekf_2D_drift(q_vel, r_dist, iterNum, ctrl=0):
+    # default value 0.25 and 0.1
+    devInput = np.array([[q_vel, q_vel, 0.01]]).T # input deviation in simulation, Vx[m/s], Vy[m/s], yawRate[rad/s]
+    devObser = r_dist # observation deviation of distance[m]
+    relaX01err = []
+    relaY01err = []
+    relaYaw01err = []
+    for i in range(iterNum):
+        print("Test number: {}".format(i))
+        xTrue = np.random.uniform(-3, 3, (3, numRob))
+        relativeState = np.zeros((3, numRob, numRob))
+        data = dataCreate(numRob, border, maxVel, dt, devInput, devObser)
+        relativeEKF = EKFonSimData(10, 0.1, 0.25, 0.4, 0.1, numRob)
+        step = 0
+        while simTime >= dt*step:
+            step += 1
+            u = data.calcInput_Formation01(step, relativeState) # !!!!!! change this function inside, the reference needs to be constant
+            if step>6000:
+                if ctrl == 0:
+                    u = np.zeros((3, numRob)) #### hovering test
+                elif ctrl == 1:
+                    u = data.calcInput_Formation01(step, relativeState)
+            xTrue, zNois, uNois = data.update(xTrue, u)   
+            if step % ekfStride == 0:
+                relativeState = relativeEKF.EKF(uNois, zNois, relativeState, ekfStride)
+            xEsti = transform.calcAbsPosUseRelaPosWRTRob0(xTrue[:,0], relativeState, xTrue, numRob)
+            if step>6000:
+                # relaX01errFormationInput[i].append(np.abs(xEsti[0,1]-xTrue[0,1]))
+                # relaY01errFormationInput[i].append(np.abs(xEsti[1,1]-xTrue[1,1]))
+                # relaYaw01errFormationInput[i].append(np.abs(xEsti[2,1]-xTrue[2,1] - 3.14*round((xEsti[2,1]-xTrue[2,1])/3.14)))
+                xEsti = relativeState[:,0,:]
+                xTrueRL = transform.calcRelaState(xTrue, numRob)
+                relaX01err.append(xEsti[0,1])
+                relaY01err.append(xEsti[1,1])
+                relaYaw01err.append(xEsti[2,1]-xTrueRL[2,1] - 3.14*round((xEsti[2,1]-xTrueRL[2,1])/3.14))                
+
+    xDrift = np.array(relaX01err)
+    yDrift = np.array(relaY01err)
+    yawDrift = np.array(relaYaw01err)
+    return xDrift, yDrift, yawDrift
+
+# hover_ctrl_by_real_position = 0
+# hover_ctrl_by_esti_position = 1
+# iterNum = 5
+# simTime = 100
+# fig, axs = plt.subplots(2, 4, figsize=(15, 5))
+# xy_lim = [[0, 3.5], [0, 3.5]] # [[xmin, xmax], [ymin, ymax]]
+# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_real_position)
+# axs[0][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_real_position)
+# axs[0][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_real_position)
+# axs[0][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_real_position)
+# axs[0][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_esti_position)
+# axs[1][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_esti_position)
+# axs[1][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_esti_position)
+# axs[1][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_esti_position)
+# im = axs[1][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+# cax = plt.axes([0.91, 0.15, 0.005, 0.73]) # [left, bottom, width, height]
+# fig.colorbar(im[-1], ax=axs.ravel(), cax=cax)
+# axs[0][0].set_ylabel('Hover by ground-truth')
+# axs[1][0].set_ylabel('Hover by estimation')
+# axs[1][0].set_xlabel('v_noise = 0.25m/s, d_noise = 0.1m')
+# axs[1][1].set_xlabel('v_noise = 0.25m/s, d_noise = 0.4m')
+# axs[1][2].set_xlabel('v_noise = 0.5m/s, d_noise = 0.1m')
+# axs[1][3].set_xlabel('v_noise = 0.5m/s, d_noise = 0.4m')
+# # add a big axis, hide frame, hide tick and tick label of the big axis
+# fig.add_subplot(111, frameon=False)
+# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+# plt.ylabel("relative estimation Y (m)", labelpad=10)
+# plt.xlabel("relative estimation X (m)", labelpad=20)
+# plt.gcf().subplots_adjust(bottom=0.15)
+# plt.show()

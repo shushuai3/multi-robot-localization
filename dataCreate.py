@@ -83,6 +83,7 @@ class dataCreate:
             self.velocity[2,:] = np.zeros((1, self.numRob))
             if (step % 500) == 0:
                 self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
+                # self.reference = np.array([[2, 2]]) # for drift test
             self.velocity[0, 0], self.velocity[1, 0] = self.pidControl(relativeState[0, 0, 1], relativeState[1, 0, 1])
             self.velocity[2, 0] = 0
         return self.velocity
