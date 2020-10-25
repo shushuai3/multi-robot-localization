@@ -257,6 +257,29 @@ ekfStride = 1 # update interval of EKF is simStride*0.01[s]
 # plt.margins(x=0)
 # plt.show()
 
+# f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+# plt.margins(x=0)
+# ax1.plot(timePlot, np.abs(pos01array[0,:]-pos01array[1,:]))
+# ax1.plot(timePlotRob4, np.abs(pos01arrayRob4[0,:]-pos01arrayRob4[1,:]))
+# ax1.set_ylabel("Error x (m)")
+# ax1.grid(True)
+# ax2.plot(timePlot, np.abs(pos01array[2,:]-pos01array[3,:]))
+# ax2.plot(timePlotRob4, np.abs(pos01arrayRob4[2,:]-pos01arrayRob4[3,:]))
+# ax2.set_ylabel("Error y (m)")
+# ax2.grid(True)
+# ax3.plot(timePlot, np.abs(pos01array[4,:]-pos01array[5,:]), label='Absolute estimation error in 3 robots')
+# ax3.plot(timePlotRob4, np.abs(pos01arrayRob4[4,:]-pos01arrayRob4[5,:]), label='Absolute estimation error in 4 robots')
+# ax3.set_ylabel(r"Error $\mathrm{\psi (rad)}$")
+# ax3.set_xlabel("Time (s)")
+# ax3.grid(True)
+# ax3.legend(loc='upper center')
+# # Fine-tune figure; make subplots close to each other and hide x ticks for
+# # all but bottom plot.
+# f.subplots_adjust(hspace=0)
+# plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+# plt.margins(x=0)
+# plt.show()
+
 # Figure of estimation drift with formation flight and different noises
 def ekf_one_dataset(q_vel, r_dist, iterNum):
     # default value 0.25 and 0.1
@@ -490,19 +513,19 @@ plt.margins(x=0)
 ax1.plot(x_axis_value, xy_PID[:, 0])
 ax1.plot(x_axis_value, xy_NDI[:, 0])
 ax1.plot(x_axis_value, xy_NDI[:, 2])
-ax1.set_ylabel("x (m)")
+ax1.set_ylabel("$x_{ij}$ (m)", fontsize=18)
 ax1.grid(True)
-ax2.plot(x_axis_value, xy_PID[:, 1], label='PID control')
-ax2.plot(x_axis_value, xy_NDI[:, 1], label='NDI control')
-ax2.plot(x_axis_value, xy_NDI[:, 3], label='reference')
-ax2.set_ylabel("y (m)")
+ax2.plot(x_axis_value, xy_PID[:, 1], label='Position feedback control')
+ax2.plot(x_axis_value, xy_NDI[:, 1], label='Dynamic inversion control')
+ax2.plot(x_axis_value, xy_NDI[:, 3], label='Reference')
+ax2.set_ylabel("$y_{ij}$ (m)", fontsize=18)
 ax2.grid(True)
-ax2.set_xlabel("Time (s)")
-ax2.legend()
-# Fine-tune figure; make subplots close to each other and hide x ticks for
-# all but bottom plot.
+ax2.set_xlabel("Time (s)", fontsize=18)
+ax2.legend(fontsize=18)
 f.subplots_adjust(hspace=0)
+plt.setp([a.get_xticklabels() for a in f.axes], fontsize=16)
 plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+plt.setp([a.get_yticklabels() for a in f.axes], fontsize=16)
 plt.margins(x=0)
 plt.show()
 

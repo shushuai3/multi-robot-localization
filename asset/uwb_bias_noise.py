@@ -116,7 +116,6 @@ plt.title("fitted distance")
 plt.xlabel("time (s)")
 plt.ylabel("distance (m)")
 plt.legend()
-plt.show()
 
 # Fig? UWB data processing distance between rob0 and rob1, dat01
 plt.figure(figsize=(8, 2))
@@ -126,9 +125,20 @@ plt.plot(timePlot, measDist01keep, color='limegreen', label='UWB ranging')
 plt.plot(timePlot, realDist01, color='blueviolet', label='Ground-truth')
 # plt.plot(timePlot, distNoOutlier, label='outlier rejection')
 plt.plot(timePlot, distNoOutlier-distBias, color='steelblue', label='Processed UWB data')
-plt.xlabel("Time (s)", fontsize=12)
-plt.ylabel("Distance (m)", fontsize=12)
+plt.xlabel("Time (s)", fontsize=18)
+plt.ylabel("Distance (m)", fontsize=18)
 plt.tight_layout() # make room for xlabel
 plt.margins(x=0)
-plt.legend(fontsize=12)
+plt.legend(fontsize=18)
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
+
+# distribution of measurement error
+plt.figure()
+_ = plt.hist((distNoOutlier-distBias-realDist01).flatten(), bins='auto')  # arguments are passed to np.histogram
+# plt.title("Distribution of ranging error")
+plt.xlabel("Distance measurement error (m)", fontsize=24)
+plt.ylabel("Number", fontsize=24)
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
 plt.show()
