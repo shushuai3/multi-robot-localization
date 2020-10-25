@@ -88,6 +88,53 @@ class dataCreate:
             self.velocity[2, 0] = 0
         return self.velocity
 
+    def calcInput_NDI(self, step, relativeState, uNois):
+        # Robot 0 keeps [-2m, -2m] WRT robot 1 after 40s, while other robots keep flyIn1m flight 
+        if (step % 100) == 0:
+            if (step % 200) == 0:
+                self.velocity = -self.velocity
+            else:
+                self.velocity[0:2,:] = np.random.uniform(0, self.maxVel*2, (2, self.numRob)) - self.maxVel
+                self.velocity[2,:] = np.random.uniform(0, 1, (1, self.numRob)) - 0.5
+        if step > 4000:
+            self.velocity[2,:] = np.zeros((1, self.numRob))
+            if (step % 500) == 0:
+                self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
+                # self.reference = np.array([[2, 2]]) # for drift test
+            # self.velocity[0, 0], self.velocity[1, 0] = self.pidControl(relativeState[0, 0, 1], relativeState[1, 0, 1])
+            err = np.array([[relativeState[0, 0, 1], relativeState[1, 0, 1]]]) - self.reference
+            psi = relativeState[2, 0, 1]
+            R_psi = np.array([[np.cos(psi), -np.sin(psi)], [np.sin(psi), np.cos(psi)]])
+            self.velocity[0:2, 0:1] = 1.4*err.T + R_psi@uNois[0:2, 1:2]
+            self.velocity[2, 0] = 0
+        return self.velocity, self.reference
+
+    def calcInput_NDI_collosion(self, step, relativeState, uNois):
+        # Robot 0 keeps [-2m, -2m] WRT robot 1 after 40s, while other robots keep flyIn1m flight 
+        if (step % 100) == 0:
+            if (step % 200) == 0:
+                self.velocity = -self.velocity
+            else:
+                self.velocity[0:2,:] = np.random.uniform(0, self.maxVel*2, (2, self.numRob)) - self.maxVel
+                self.velocity[2,:] = np.random.uniform(0, 1, (1, self.numRob)) - 0.5
+        if step > 4000:
+            self.velocity[2,:] = np.zeros((1, self.numRob))
+            if (step % 500) == 0:
+                self.reference = np.random.uniform(0.5, 3, (1, 2)) * (2*np.random.randint(0, 2, size=(1, 2)) - 1)
+                # self.reference = np.array([[2, 2]]) # for drift test
+            # self.velocity[0, 0], self.velocity[1, 0] = self.pidControl(relativeState[0, 0, 1], relativeState[1, 0, 1])
+            err = np.array([[relativeState[0, 0, 1], relativeState[1, 0, 1]]]) - self.reference
+            psi = relativeState[2, 0, 1]
+            R_psi = np.array([[np.cos(psi), -np.sin(psi)], [np.sin(psi), np.cos(psi)]])
+            item_colli = np.zeros((2, 1))
+            for i in range(self.numRob-1):
+                dist_calc = np.sqrt(relativeState[0, 0, i+1]**2+relativeState[1, 0, i+1]**2)
+                item_colli = item_colli + 1/dist_calc*relativeState[0:2, 0:1, i+1]*(0 if dist_calc>1 else 1)
+            item_colli = -5.0*item_colli
+            self.velocity[0:2, 0:1] = 1.4*err.T + R_psi@uNois[0:2, 1:2] + item_colli
+            self.velocity[2, 0] = 0
+        return self.velocity, self.reference
+
     def calcInput_Formation_Optimal(self, step, relativeState, uNois):
         # Robot 0 keeps [-2m, -2m] WRT robot 1 after 40s, while other robots keep flyIn1m flight 
         if (step % 100) == 0:

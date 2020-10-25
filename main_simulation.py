@@ -38,7 +38,8 @@ def animate(step):
     # u = data.calcInput_PotentialField(step, xTrue)
     # u = data.calcInput_Formation01(step, relativeState)
     # u = data.calcInput_Formation_Optimal(step, relativeState, uNois)
-    xTrue, zNois, uNois = data.update(xTrue, u)   
+    # u, _ = data.calcInput_NDI_collosion(step, relativeState, uNois)
+    xTrue, zNois, uNois = data.update(xTrue, u)
     if step % ekfStride == 0:
         relativeState = relativeEKF.EKF(uNois, zNois, relativeState, ekfStride)
     xEsti = transform.calcAbsPosUseRelaPosWRTRob0(xTrue[:,0], relativeState, xTrue, numRob)

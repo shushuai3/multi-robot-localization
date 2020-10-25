@@ -434,3 +434,97 @@ def ekf_2D_drift(q_vel, r_dist, iterNum, ctrl=0):
 # plt.xlabel("relative estimation X (m)", labelpad=20)
 # plt.gcf().subplots_adjust(bottom=0.15)
 # plt.show()
+
+# Figure of PID control VS NDI control
+# first run PID, then NDI, then plot
+# xTrue = np.random.uniform(-3, 3, (3, numRob))
+# relativeState = np.zeros((3, numRob, numRob))
+# data = dataCreate(numRob, border, maxVel, dt, devInput, devObser)
+# relativeEKF = EKFonSimData(10, 0.1, 0.25, 0.4, 0.1, numRob)
+# uNois = np.zeros((3, numRob))
+# delayInput = [np.zeros((3, numRob)) for i in range(7)]
+# delayIndex = 0
+# xEsti = relativeState[:,0,:] # relative states in robot0's body-frame
+# xTrueRL = transform.calcRelaState(xTrue, numRob) # groundTruth relative states
+# dataForPlot = []
+# simTime = 120
+# step = 0
+# while simTime >= dt*step:
+#     step += 1
+#     # u = data.calcInput_Formation01(step, relativeState) ### PID
+#     u, refer = data.calcInput_NDI(step, relativeState, uNois) ### NDI
+#     delayIndex = delayIndex + 1
+#     if delayIndex == 7:
+#         delayIndex = 0
+#     delayInput[delayIndex] = u
+#     u_delay = delayInput[delayIndex+1 if delayIndex<6 else 1]
+#     xTrue, zNois, uNois = data.update(xTrue, u_delay)   
+#     if step % ekfStride == 0:
+#         relativeState = relativeEKF.EKF(uNois, zNois, relativeState, ekfStride)
+#     if step>5000:
+#         xEsti = relativeState[:,0,:]
+#         xTrueRL = transform.calcRelaState(xTrue, numRob)
+#         # dataForPlot.append([xTrueRL[0,1], xTrueRL[1,1]]) ### PID
+#         dataForPlot.append([xTrueRL[0,1], xTrueRL[1,1], refer[0,0], refer[0,1]]) ### NDI
+# dataForPlot = np.array(dataForPlot)
+
+# mat_data = np.matrix(dataForPlot)
+# with open('mat_NDI.txt', 'w') as f:
+#     for line in mat_data:
+#         np.savetxt(f, line, fmt='%.5f')
+
+with open('mat_PID.txt', 'r') as f:
+    lines = f.readlines()
+    lines_string_list = [line.strip() for line in lines if len(line.strip().split()[1:]) != 0]
+PID_list = [list(map(float, line_string.split())) for line_string in lines_string_list]
+xy_PID = np.array(PID_list)
+with open('mat_NDI.txt', 'r') as f:
+    lines = f.readlines()
+    lines_string_list = [line.strip() for line in lines if len(line.strip().split()[1:]) != 0]
+NDI_list = [list(map(float, line_string.split())) for line_string in lines_string_list]
+xy_NDI = np.array(NDI_list)
+
+x_axis_value = np.arange(0, len(xy_PID[:, 0]))/100
+f, (ax1, ax2) = plt.subplots(2, figsize=(12, 4), sharex=True)
+plt.margins(x=0)
+ax1.plot(x_axis_value, xy_PID[:, 0])
+ax1.plot(x_axis_value, xy_NDI[:, 0])
+ax1.plot(x_axis_value, xy_NDI[:, 2])
+ax1.set_ylabel("x (m)")
+ax1.grid(True)
+ax2.plot(x_axis_value, xy_PID[:, 1], label='PID control')
+ax2.plot(x_axis_value, xy_NDI[:, 1], label='NDI control')
+ax2.plot(x_axis_value, xy_NDI[:, 3], label='reference')
+ax2.set_ylabel("y (m)")
+ax2.grid(True)
+ax2.set_xlabel("Time (s)")
+ax2.legend()
+# Fine-tune figure; make subplots close to each other and hide x ticks for
+# all but bottom plot.
+f.subplots_adjust(hspace=0)
+plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+plt.margins(x=0)
+plt.show()
+
+# dataForPlotArray = dataForPlot.T
+# timePlot = np.arange(0, len(dataForPlotArray[0]))/100
+# f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+# plt.margins(x=0)
+# ax1.plot(timePlot, dataForPlotArray[0,:])
+# ax1.plot(timePlot, dataForPlotArray[1,:])
+# ax1.set_ylabel(r"$x_{ij}$ (m)", fontsize=12)
+# ax1.grid(True)
+# ax2.plot(timePlot, dataForPlotArray[2,:])
+# ax2.plot(timePlot, dataForPlotArray[3,:])
+# ax2.set_ylabel(r"$y_{ij}$ (m)", fontsize=12)
+# ax2.grid(True)
+# ax3.plot(timePlot, dataForPlotArray[4,:], label='Relative EKF')
+# ax3.plot(timePlot, dataForPlotArray[5,:], label='Ground-truth')
+# ax3.set_ylabel(r"$\mathrm{\psi_{ij}}$ (rad)", fontsize=12)
+# ax3.set_xlabel("Time (s)", fontsize=12)
+# ax3.grid(True)
+# ax3.legend(loc='upper center', bbox_to_anchor=(0.8, 0.6), shadow=True, ncol=1, fontsize=12)
+# # Fine-tune figure; make subplots close to each other and hide x ticks for all but bottom plot.
+# f.subplots_adjust(hspace=0)
+# plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+# plt.show()
