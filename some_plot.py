@@ -420,43 +420,48 @@ def ekf_2D_drift(q_vel, r_dist, iterNum, ctrl=0):
     yawDrift = np.array(relaYaw01err)
     return xDrift, yDrift, yawDrift
 
-# hover_ctrl_by_real_position = 0
-# hover_ctrl_by_esti_position = 1
-# iterNum = 5
-# simTime = 100
-# fig, axs = plt.subplots(2, 4, figsize=(15, 5))
-# xy_lim = [[0, 3.5], [0, 3.5]] # [[xmin, xmax], [ymin, ymax]]
-# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_real_position)
-# axs[0][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_real_position)
-# axs[0][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_real_position)
-# axs[0][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_real_position)
-# axs[0][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_esti_position)
-# axs[1][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_esti_position)
-# axs[1][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_esti_position)
-# axs[1][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_esti_position)
-# im = axs[1][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
-# cax = plt.axes([0.91, 0.15, 0.005, 0.73]) # [left, bottom, width, height]
-# fig.colorbar(im[-1], ax=axs.ravel(), cax=cax)
-# axs[0][0].set_ylabel('Hover by ground-truth')
-# axs[1][0].set_ylabel('Hover by estimation')
-# axs[1][0].set_xlabel('v_noise = 0.25m/s, d_noise = 0.1m')
-# axs[1][1].set_xlabel('v_noise = 0.25m/s, d_noise = 0.4m')
-# axs[1][2].set_xlabel('v_noise = 0.5m/s, d_noise = 0.1m')
-# axs[1][3].set_xlabel('v_noise = 0.5m/s, d_noise = 0.4m')
-# # add a big axis, hide frame, hide tick and tick label of the big axis
-# fig.add_subplot(111, frameon=False)
-# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-# plt.ylabel("relative estimation Y (m)", labelpad=10)
-# plt.xlabel("relative estimation X (m)", labelpad=20)
-# plt.gcf().subplots_adjust(bottom=0.15)
-# plt.show()
+hover_ctrl_by_real_position = 0
+hover_ctrl_by_esti_position = 1
+iterNum = 3
+simTime = 200
+fig, axs = plt.subplots(2, 5, figsize=(15, 6))
+xy_lim = [[-3, 3], [-3, 3]] # [[xmin, xmax], [ymin, ymax]]
+x_data, y_data, yaw_data = ekf_2D_drift(0.01, 0.01, iterNum, hover_ctrl_by_real_position)
+axs[0][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_real_position)
+axs[0][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_real_position)
+axs[0][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_real_position)
+axs[0][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_real_position)
+axs[0][4].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.01, 0.01, iterNum, hover_ctrl_by_esti_position)
+axs[1][0].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.1, iterNum, hover_ctrl_by_esti_position)
+axs[1][1].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.25, 0.4, iterNum, hover_ctrl_by_esti_position)
+axs[1][2].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.1, iterNum, hover_ctrl_by_esti_position)
+axs[1][3].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+x_data, y_data, yaw_data = ekf_2D_drift(0.5, 0.4, iterNum, hover_ctrl_by_esti_position)
+im = axs[1][4].hist2d(x_data, y_data, range=xy_lim, bins=(50, 50))
+cax = plt.axes([0.91, 0.15, 0.005, 0.73]) # [left, bottom, width, height]
+fig.colorbar(im[-1], ax=axs.ravel(), cax=cax)
+axs[0][0].set_ylabel('Hover by ground-truth')
+axs[1][0].set_ylabel('Hover by estimation')
+axs[1][0].set_xlabel('v_n = 0.01, d_n = 0.01')
+axs[1][1].set_xlabel('v_n = 0.25, d_n = 0.1')
+axs[1][2].set_xlabel('v_n = 0.25, d_n = 0.4')
+axs[1][3].set_xlabel('v_n = 0.5, d_n = 0.1')
+axs[1][4].set_xlabel('v_n = 0.5, d_n = 0.4')
+# add a big axis, hide frame, hide tick and tick label of the big axis
+fig.add_subplot(111, frameon=False)
+plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+plt.ylabel("relative estimation Y (m)", labelpad=20)
+plt.xlabel("relative estimation X (m)", labelpad=20)
+plt.gcf().subplots_adjust(bottom=0.15)
+plt.show()
 
 # Figure of PID control VS NDI control
 # first run PID, then NDI, then plot
