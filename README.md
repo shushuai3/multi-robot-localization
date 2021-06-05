@@ -11,7 +11,7 @@ Paper: [PDF on arXiv](https://arxiv.org/pdf/2003.05853.pdf).
 
 Video: [Real-world flight on Youtube](https://www.youtube.com/playlist?list=PL_KSX9GOn2P9sgaX3DHnPsnBCJ76fLNJ5).
 
-Quadrotor's code: [Coming soon]().
+Quadrotor's code: [Github link](https://github.com/shushuai3/cf_onboard_swarm/tree/swarm).
 
 ## Requirements
 
